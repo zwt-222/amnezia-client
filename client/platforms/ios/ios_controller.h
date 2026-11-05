@@ -105,6 +105,7 @@ public:
 signals:
     void connectionStateChanged(Vpn::ConnectionState state);
     void bytesChanged(quint64 receivedBytes, quint64 sentBytes);
+    void handshakeTimeChanged(qint64 msSinceEpoch);
     void importConfigFromOutside(const QString);
     void importBackupFromOutside(const QString);
     void storeTransactionUpdated(const QVariantMap &transaction);

@@ -47,6 +47,7 @@ VpnConnection::VpnConnection(SecureServersRepository* serversRepository, SecureA
     m_checkTimer.setInterval(1000);
     connect(IosController::Instance(), &IosController::connectionStateChanged, this, &VpnConnection::setConnectionState);
     connect(IosController::Instance(), &IosController::bytesChanged, this, &VpnConnection::onBytesChanged);
+    connect(IosController::Instance(), &IosController::handshakeTimeChanged, this, &VpnConnection::lastHandshakeChanged);
 #endif
 }
 
