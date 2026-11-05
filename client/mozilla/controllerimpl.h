@@ -79,11 +79,13 @@ class ControllerImpl : public QObject {
   // This method should be emitted after a checkStatus() call.
   // "serverIpv4Gateway" is the current VPN tunnel gateway.
   // "deviceIpv4Address" is the address of the VPN client.
-  // "txBytes" and "rxBytes" contain the number of transmitted and received
-  // bytes since the last statusUpdated signal.
+  // "txBytes" and "rxBytes" contain the total number of transmitted and
+  // received bytes for the current tunnel.
+  // "lastHandshakeMs" is the last successful handshake time in milliseconds
+  // since epoch, or 0 when unknown.
   void statusUpdated(const QString& serverIpv4Gateway,
                      const QString& deviceIpv4Address, uint64_t txBytes,
-                     uint64_t rxBytes);
+                     uint64_t rxBytes, qint64 lastHandshakeMs);
 };
 
 #endif  // CONTROLLERIMPL_H

@@ -13,14 +13,19 @@ WireguardProtocol::WireguardProtocol(const QJsonObject &configuration, QObject *
     : VpnProtocol(configuration, parent)
 {
     m_impl.reset(new LocalSocketController());
+
+    m_statusTimer.setInterval(1000);
+    connect(&m_statusTimer, &QTimer::timeout, this, [this]() { m_impl->checkStatus(); });
+
     connect(m_impl.get(), &ControllerImpl::connected, this,
             [this](const QString &pubkey, const QDateTime &connectionTimestamp) {
                 setConnectionState(Vpn::ConnectionState::Connected);
+                m_statusTimer.start();
             });
     connect(m_impl.get(), &ControllerImpl::statusUpdated, this,
             [this](const QString& serverIpv4Gateway,
                    const QString& deviceIpv4Address, uint64_t txBytes,
-                   uint64_t rxBytes) {
+                   uint64_t rxBytes, qint64 lastHandshakeMs) {
                 const QString previousGateway = m_vpnGateway;
                 const QString previousLocal = m_vpnLocalAddress;
 
@@ -35,10 +40,19 @@ WireguardProtocol::WireguardProtocol(const QJsonObject &configuration, QObject *
                     (!m_vpnLocalAddress.isEmpty() && m_vpnLocalAddress != previousLocal)) {
                     emit tunnelAddressesUpdated(m_vpnGateway, m_vpnLocalAddress);
                 }
+
+                if (txBytes != 0 || rxBytes != 0) {
+                    setBytesChanged(rxBytes, txBytes);
+                }
+                if (lastHandshakeMs > 0) {
+                    setHandshakeTime(lastHandshakeMs);
+                }
             });
 
-    connect(m_impl.get(), &ControllerImpl::disconnected, this,
-            [this]() { setConnectionState(Vpn::ConnectionState::Disconnected); });
+    connect(m_impl.get(), &ControllerImpl::disconnected, this, [this]() {
+        m_statusTimer.stop();
+        setConnectionState(Vpn::ConnectionState::Disconnected);
+    });
     m_impl->initialize(nullptr, nullptr);
 }
 
@@ -50,6 +64,7 @@ WireguardProtocol::~WireguardProtocol()
 
 void WireguardProtocol::stop()
 {
+    m_statusTimer.stop();
     stopMzImpl();
     return;
 }

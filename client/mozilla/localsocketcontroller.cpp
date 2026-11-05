@@ -280,8 +280,6 @@ void LocalSocketController::deactivate() {
 }
 
 void LocalSocketController::checkStatus() {
-  logger.debug() << "Check status";
-
   if (m_daemonState == eReady || m_daemonState == eInitializing) {
     Q_ASSERT(m_socket);
 
@@ -434,9 +432,12 @@ void LocalSocketController::parseCommand(const QByteArray& command) {
       return;
     }
 
+    const qint64 lastHandshakeMs =
+        static_cast<qint64>(obj.value("lastHandshake").toDouble(0));
+
     emit statusUpdated(serverIpv4Gateway.toString(),
                        deviceIpv4Address.toString(), txBytes.toDouble(),
-                       rxBytes.toDouble());
+                       rxBytes.toDouble(), lastHandshakeMs);
     return;
   }
 
@@ -457,7 +458,7 @@ void LocalSocketController::parseCommand(const QByteArray& command) {
 
     checkStatus();
 
-    emit statusUpdated("", m_deviceIpv4, 0, 0);
+    emit statusUpdated("", m_deviceIpv4, 0, 0, 0);
 
     emit connected(pubkey.toString());
     return;
