@@ -541,7 +541,13 @@ void VpnConnection::createAndroidConnections()
 
     connect(AndroidController::instance(), &AndroidController::connectionStateChanged, androidVpnProtocol,
             &AndroidVpnProtocol::setConnectionState);
-    connect(AndroidController::instance(), &AndroidController::statisticsUpdated, androidVpnProtocol, &AndroidVpnProtocol::setBytesChanged);
+    connect(AndroidController::instance(), &AndroidController::statisticsUpdated, androidVpnProtocol,
+            [protocol = androidVpnProtocol](quint64 rxBytes, quint64 txBytes, qint64 lastHandshakeMs) {
+                protocol->setBytesChanged(rxBytes, txBytes);
+                if (lastHandshakeMs > 0) {
+                    protocol->setHandshakeTime(lastHandshakeMs);
+                }
+            });
 }
 
 AndroidVpnProtocol *VpnConnection::createDefaultAndroidVpnProtocol()

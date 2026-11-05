@@ -44,10 +44,12 @@ open class Wireguard : Protocol() {
                         when {
                             startsWith("rx_bytes=") -> setRxBytes(substring(9).toLong()).also { ++optsCount }
                             startsWith("tx_bytes=") -> setTxBytes(substring(9).toLong()).also { ++optsCount }
+                            startsWith("last_handshake_time_sec=") ->
+                                setLastHandshake(substring(24).toLong() * 1000).also { ++optsCount }
                             else -> {}
                         }
                     }
-                    if (optsCount == 2) return@forEach
+                    if (optsCount == 3) return@forEach
                 }
             }
         }
