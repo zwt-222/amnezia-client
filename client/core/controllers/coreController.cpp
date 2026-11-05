@@ -176,6 +176,8 @@ void CoreController::initCoreControllers()
                 &ConnectionStatsController::onHandshakeTimeChanged);
         connect(m_vpnConnection.get(), &VpnConnection::connectionStateChanged, m_connectionStatsController,
                 &ConnectionStatsController::onConnectionStateChanged);
+        connect(m_vpnConnection.get(), &VpnConnection::tunnelAddressesUpdated, m_connectionStatsController,
+                &ConnectionStatsController::onTunnelAddressChanged);
     }
     m_settingsController = new SettingsController(m_serversRepository, m_appSettingsRepository, this);
 }
@@ -184,8 +186,8 @@ void CoreController::initControllers()
 {
     m_connectionUiController = new ConnectionUiController(m_connectionController, m_serversController, this);
     setQmlContextProperty("ConnectionController", m_connectionUiController);
-    m_connectionStatsUiController = new ConnectionStatsUiController(m_connectionStatsController, m_serversController,
-                                                                    m_vpnConnection.get(), this);
+    m_connectionStatsUiController =
+            new ConnectionStatsUiController(m_connectionStatsController, m_serversController, this);
     setQmlContextProperty("ConnectionStatsController", m_connectionStatsUiController);
 
     if (m_engine) {

@@ -384,6 +384,7 @@ void VpnConnection::createProtocolConnections()
     connect(m_vpnProtocol.data(), &VpnProtocol::connectionStateChanged, this, &VpnConnection::setConnectionState);
     connect(m_vpnProtocol.data(), SIGNAL(bytesChanged(quint64, quint64)), this, SLOT(onBytesChanged(quint64, quint64)));
     connect(m_vpnProtocol.data(), &VpnProtocol::handshakeTimeChanged, this, &VpnConnection::lastHandshakeChanged);
+    connect(m_vpnProtocol.data(), &VpnProtocol::tunnelAddressesUpdated, this, &VpnConnection::tunnelAddressesUpdated);
 
 #ifdef AMNEZIA_DESKTOP
     IpcClient::withInterface([this](QSharedPointer<IpcInterfaceReplica> rep) {

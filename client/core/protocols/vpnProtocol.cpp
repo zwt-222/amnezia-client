@@ -94,7 +94,8 @@ void VpnProtocol::setConnectionState(Vpn::ConnectionState state)
     }
 
     m_connectionState = state;
-    if (m_connectionState == Vpn::ConnectionState::Disconnected) {
+    if (m_connectionState == Vpn::ConnectionState::Disconnected
+        || m_connectionState == Vpn::ConnectionState::Connecting) {
         m_receivedBytes = 0;
         m_sentBytes = 0;
     }

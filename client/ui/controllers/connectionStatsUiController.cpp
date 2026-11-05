@@ -8,9 +8,8 @@
 #include "core/utils/containers/containerUtils.h"
 
 ConnectionStatsUiController::ConnectionStatsUiController(ConnectionStatsController *statsController,
-                                                         ServersController *serversController,
-                                                         VpnConnection *vpnConnection, QObject *parent)
-    : QObject(parent), m_stats(statsController), m_serversController(serversController), m_vpnConnection(vpnConnection)
+                                                         ServersController *serversController, QObject *parent)
+    : QObject(parent), m_stats(statsController), m_serversController(serversController)
 {
     connect(m_stats, &ConnectionStatsController::statsChanged, this, &ConnectionStatsUiController::statsChanged);
 }
@@ -38,6 +37,11 @@ QString ConnectionStatsUiController::txRateText() const
 bool ConnectionStatsUiController::isHandshakeStale() const
 {
     return m_stats->isHandshakeStale();
+}
+
+bool ConnectionStatsUiController::hasStats() const
+{
+    return m_stats->hasHandshake();
 }
 
 QString ConnectionStatsUiController::handshakeAgeText() const
@@ -87,13 +91,8 @@ ServerDescription ConnectionStatsUiController::defaultServerDescription() const
 
 QString ConnectionStatsUiController::tunnelAddress() const
 {
-    if (m_vpnConnection && m_vpnConnection->vpnProtocol()) {
-        const QString address = m_vpnConnection->vpnProtocol()->vpnLocalAddress();
-        if (!address.isEmpty()) {
-            return address;
-        }
-    }
-    return QStringLiteral("—");
+    const QString address = m_stats->tunnelAddress();
+    return address.isEmpty() ? QStringLiteral("—") : address;
 }
 
 QString ConnectionStatsUiController::buildReport() const
@@ -105,10 +104,14 @@ QString ConnectionStatsUiController::buildReport() const
     const QString nowText = now.toOffsetFromUtc(now.offsetFromUtc()).toString(Qt::ISODate);
 
     const qint64 handshakeMs = m_stats->lastHandshakeMs();
-    const QString handshakeLine = handshakeMs > 0
-            ? QStringLiteral("%1 (%2)")
-                      .arg(QDateTime::fromMSecsSinceEpoch(handshakeMs).toString(Qt::ISODate), handshakeAgeText())
-            : QStringLiteral("—");
+    QString handshakeLine = QStringLiteral("—");
+    if (handshakeMs > 0) {
+        const QDateTime handshake = QDateTime::fromMSecsSinceEpoch(handshakeMs);
+        const qint64 ageSec = qMax<qint64>(0, (QDateTime::currentMSecsSinceEpoch() - handshakeMs) / 1000);
+        handshakeLine = QStringLiteral("%1 (%2 s ago)")
+                                .arg(handshake.toOffsetFromUtc(handshake.offsetFromUtc()).toString(Qt::ISODate))
+                                .arg(ageSec);
+    }
 
     QStringList lines;
     lines << QStringLiteral("AmneziaVPN connection diagnostics") << QStringLiteral("time: %1").arg(nowText)

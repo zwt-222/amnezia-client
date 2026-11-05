@@ -54,7 +54,7 @@ AmneziaVPN 客户端在 iOS、macOS、Android 三端长时间使用 AWG/WireGuar
 规则：
 
 - 速率 = 本次增量 ÷ 距上次增量的秒数。第一次回调（计时器未启动）只累加，不算速率。
-- 进入 `Connected`：累计、速率、握手时间清零，计时器重启。
+- 进入 `Connected`：累计、速率、握手时间清零，计时器重启；从 `Reconnecting` 进入时除外（累计和握手时间保留，速率从 0 重新计算，计时器重启）。
 - 进入 `Reconnecting`：累计保留，速率归零。
 - 进入 `Disconnected` 或 `Error`：全部清零。
 - `isHandshakeStale()`：`m_lastHandshakeMs > 0` 且距今超过 180 秒（AWG 默认 RejectAfterTime）。未知时返回 false。

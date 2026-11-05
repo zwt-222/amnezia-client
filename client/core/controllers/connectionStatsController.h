@@ -22,6 +22,8 @@ public:
     double txRate() const;
     qint64 lastHandshakeMs() const;
     bool isHandshakeStale() const;
+    bool hasHandshake() const;
+    QString tunnelAddress() const;
 
     static QString formatBytes(quint64 bytes);
     static QString formatRate(double bytesPerSec);
@@ -30,6 +32,7 @@ public slots:
     void onBytesChanged(quint64 rxDelta, quint64 txDelta);
     void onHandshakeTimeChanged(qint64 msSinceEpoch);
     void onConnectionStateChanged(Vpn::ConnectionState state);
+    void onTunnelAddressChanged(const QString &localAddress);
 
 signals:
     void statsChanged();
@@ -46,6 +49,8 @@ private:
     double m_txRate = 0.0;
     qint64 m_lastHandshakeMs = 0;
     qint64 m_lastSampleMs = -1;
+    QString m_tunnelAddress;
+    Vpn::ConnectionState m_lastState = Vpn::ConnectionState::Unknown;
 };
 
 #endif // CONNECTIONSTATSCONTROLLER_H

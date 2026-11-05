@@ -45,12 +45,17 @@ private slots:
     void testZeroElapsedKeepsPreviousRate();
     void testReconnectingKeepsTotalsAndZeroesRate();
     void testDisconnectedResets();
-    void testReconnectThenConnectedResets();
+    void testReconnectThenConnectedKeepsTotals();
+    void testDisconnectedThenConnectedResets();
+    void testErrorResets();
+    void testHasHandshake();
+    void testTunnelAddress();
     void testFormatBytesBoundaries();
     void testFormatRate();
     void testHandshakeStale();
     void testHandshakeSignalOnlyOnChange();
     void testProtocolCounterResetOnSmallerTotal();
+    void testProtocolCounterResetOnConnecting();
 };
 
 void TestConnectionStats::testConnectedStartsFromZero()
@@ -125,7 +130,7 @@ void TestConnectionStats::testDisconnectedResets()
     QCOMPARE(stats.lastHandshakeMs(), qint64(0));
 }
 
-void TestConnectionStats::testReconnectThenConnectedResets()
+void TestConnectionStats::testReconnectThenConnectedKeepsTotals()
 {
     FakeClockStats stats;
     stats.onConnectionStateChanged(Vpn::ConnectionState::Connected);
@@ -134,8 +139,81 @@ void TestConnectionStats::testReconnectThenConnectedResets()
     stats.onConnectionStateChanged(Vpn::ConnectionState::Reconnecting);
     stats.onConnectionStateChanged(Vpn::ConnectionState::Connected);
 
+    QCOMPARE(stats.rxTotal(), quint64(1000));
+    QCOMPARE(stats.txTotal(), quint64(100));
+    QCOMPARE(stats.rxRate(), 0.0);
+    QCOMPARE(stats.txRate(), 0.0);
+
+    stats.fakeNowMs += 500;
+    stats.onBytesChanged(500, 50);
+    QCOMPARE(stats.rxTotal(), quint64(1500));
+    QCOMPARE(stats.rxRate(), 1000.0);
+    QCOMPARE(stats.txRate(), 100.0);
+}
+
+void TestConnectionStats::testDisconnectedThenConnectedResets()
+{
+    FakeClockStats stats;
+    stats.onConnectionStateChanged(Vpn::ConnectionState::Connected);
+    stats.fakeNowMs += 1000;
+    stats.onBytesChanged(1000, 100);
+    stats.onConnectionStateChanged(Vpn::ConnectionState::Reconnecting);
+    stats.onConnectionStateChanged(Vpn::ConnectionState::Disconnected);
+    stats.onConnectionStateChanged(Vpn::ConnectionState::Connecting);
+    stats.onBytesChanged(700, 70);
+    stats.onConnectionStateChanged(Vpn::ConnectionState::Connected);
+
     QCOMPARE(stats.rxTotal(), quint64(0));
     QCOMPARE(stats.txTotal(), quint64(0));
+}
+
+void TestConnectionStats::testErrorResets()
+{
+    FakeClockStats stats;
+    stats.onConnectionStateChanged(Vpn::ConnectionState::Connected);
+    stats.fakeNowMs += 1000;
+    stats.onBytesChanged(1000, 100);
+    stats.onHandshakeTimeChanged(stats.fakeNowMs);
+    stats.onTunnelAddressChanged(QStringLiteral("10.8.1.2"));
+    stats.onConnectionStateChanged(Vpn::ConnectionState::Error);
+
+    QCOMPARE(stats.rxTotal(), quint64(0));
+    QCOMPARE(stats.txTotal(), quint64(0));
+    QCOMPARE(stats.rxRate(), 0.0);
+    QCOMPARE(stats.txRate(), 0.0);
+    QCOMPARE(stats.lastHandshakeMs(), qint64(0));
+    QVERIFY(stats.tunnelAddress().isEmpty());
+}
+
+void TestConnectionStats::testHasHandshake()
+{
+    FakeClockStats stats;
+    QVERIFY(!stats.hasHandshake());
+
+    stats.onConnectionStateChanged(Vpn::ConnectionState::Connected);
+    QVERIFY(!stats.hasHandshake());
+
+    stats.onHandshakeTimeChanged(stats.fakeNowMs - 5000);
+    QVERIFY(stats.hasHandshake());
+
+    stats.onConnectionStateChanged(Vpn::ConnectionState::Disconnected);
+    QVERIFY(!stats.hasHandshake());
+}
+
+void TestConnectionStats::testTunnelAddress()
+{
+    FakeClockStats stats;
+    QSignalSpy spy(&stats, &ConnectionStatsController::statsChanged);
+    QVERIFY(stats.tunnelAddress().isEmpty());
+
+    // The WireGuard backend reports the address just before the Connected state.
+    stats.onTunnelAddressChanged(QStringLiteral("10.8.1.2"));
+    stats.onConnectionStateChanged(Vpn::ConnectionState::Connected);
+    QCOMPARE(stats.tunnelAddress(), QStringLiteral("10.8.1.2"));
+    QCOMPARE(spy.count(), 2);
+
+    stats.onConnectionStateChanged(Vpn::ConnectionState::Disconnected);
+    QVERIFY(stats.tunnelAddress().isEmpty());
 }
 
 void TestConnectionStats::testFormatBytesBoundaries()
@@ -199,6 +277,21 @@ void TestConnectionStats::testProtocolCounterResetOnSmallerTotal()
     QCOMPARE(spy.at(1).at(1).toULongLong(), quint64(50));
     QCOMPARE(spy.at(2).at(0).toULongLong(), quint64(200));
     QCOMPARE(spy.at(2).at(1).toULongLong(), quint64(20));
+}
+
+void TestConnectionStats::testProtocolCounterResetOnConnecting()
+{
+    StubProtocol protocol;
+    QSignalSpy spy(&protocol, &VpnProtocol::bytesChanged);
+
+    protocol.setConnectionState(Vpn::ConnectionState::Connected);
+    protocol.setBytesChanged(1000, 100);
+    protocol.setConnectionState(Vpn::ConnectionState::Connecting);
+    protocol.setBytesChanged(1500, 150);
+
+    QCOMPARE(spy.count(), 2);
+    QCOMPARE(spy.at(1).at(0).toULongLong(), quint64(1500));
+    QCOMPARE(spy.at(1).at(1).toULongLong(), quint64(150));
 }
 
 QTEST_MAIN(TestConnectionStats)

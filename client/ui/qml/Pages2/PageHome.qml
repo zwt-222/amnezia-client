@@ -69,6 +69,9 @@ PageType {
                 if (homeSplitTunnelingDrawer.isOpened) {
                     homeSplitTunnelingDrawer.closeTriggered()
                 }
+                if (connectionStatsDrawer.isOpened) {
+                    connectionStatsDrawer.closeTriggered()
+                }
             }
         }
     }
@@ -186,7 +189,7 @@ PageType {
                 buttonTextLabel.font.pixelSize: 14
                 buttonTextLabel.font.weight: 500
 
-                visible: ConnectionController.isConnected
+                visible: ConnectionController.isConnected && ConnectionStatsController.hasStats
                 text: ConnectionStatsController.summaryText
                 rightImageSource: "qrc:/images/controls/chevron-down.svg"
 
@@ -195,6 +198,12 @@ PageType {
 
                 onClicked: {
                     connectionStatsDrawer.openTriggered()
+                }
+
+                onVisibleChanged: {
+                    if (!visible && connectionStatsDrawer.isOpened) {
+                        connectionStatsDrawer.closeTriggered()
+                    }
                 }
 
                 ConnectionStatsDrawer {

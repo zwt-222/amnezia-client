@@ -7,7 +7,6 @@
 #include "core/controllers/connectionStatsController.h"
 #include "core/controllers/serversController.h"
 #include "core/models/serverDescription.h"
-#include "vpnConnection.h"
 
 class ConnectionStatsUiController : public QObject
 {
@@ -20,10 +19,11 @@ class ConnectionStatsUiController : public QObject
     Q_PROPERTY(QString txRateText READ txRateText NOTIFY statsChanged)
     Q_PROPERTY(QString lastHandshakeText READ lastHandshakeText NOTIFY statsChanged)
     Q_PROPERTY(bool isHandshakeStale READ isHandshakeStale NOTIFY statsChanged)
+    Q_PROPERTY(bool hasStats READ hasStats NOTIFY statsChanged)
 
 public:
     explicit ConnectionStatsUiController(ConnectionStatsController *statsController, ServersController *serversController,
-                                         VpnConnection *vpnConnection, QObject *parent = nullptr);
+                                         QObject *parent = nullptr);
     ~ConnectionStatsUiController() override = default;
 
     QString summaryText() const;
@@ -33,6 +33,7 @@ public:
     QString txRateText() const;
     QString lastHandshakeText() const;
     bool isHandshakeStale() const;
+    bool hasStats() const;
 
     QString buildReport() const;
 
@@ -48,7 +49,6 @@ private:
 
     ConnectionStatsController *m_stats;
     ServersController *m_serversController;
-    VpnConnection *m_vpnConnection;
 };
 
 #endif // CONNECTIONSTATSUICONTROLLER_H

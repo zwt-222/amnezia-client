@@ -39,6 +39,16 @@ bool ConnectionStatsController::isHandshakeStale() const
     return nowMs() - m_lastHandshakeMs > handshakeStaleThresholdMs;
 }
 
+bool ConnectionStatsController::hasHandshake() const
+{
+    return m_lastHandshakeMs > 0;
+}
+
+QString ConnectionStatsController::tunnelAddress() const
+{
+    return m_tunnelAddress;
+}
+
 qint64 ConnectionStatsController::nowMs() const
 {
     return QDateTime::currentMSecsSinceEpoch();
@@ -99,9 +109,15 @@ void ConnectionStatsController::onHandshakeTimeChanged(qint64 msSinceEpoch)
 
 void ConnectionStatsController::onConnectionStateChanged(Vpn::ConnectionState state)
 {
+    const Vpn::ConnectionState previousState = m_lastState;
+    m_lastState = state;
+
     switch (state) {
     case Vpn::ConnectionState::Connected:
-        resetAll();
+        // A reconnect continues the same session: keep totals, rates restart from zero (cleared on Reconnecting).
+        if (previousState != Vpn::ConnectionState::Reconnecting) {
+            resetAll();
+        }
         m_lastSampleMs = nowMs();
         break;
     case Vpn::ConnectionState::Reconnecting:
@@ -112,10 +128,21 @@ void ConnectionStatsController::onConnectionStateChanged(Vpn::ConnectionState st
     case Vpn::ConnectionState::Disconnected:
     case Vpn::ConnectionState::Error:
         resetAll();
+        // Not part of resetAll(): the WireGuard backend reports the address just before Connected.
+        m_tunnelAddress.clear();
         break;
     default:
         return;
     }
+    emit statsChanged();
+}
+
+void ConnectionStatsController::onTunnelAddressChanged(const QString &localAddress)
+{
+    if (m_tunnelAddress == localAddress) {
+        return;
+    }
+    m_tunnelAddress = localAddress;
     emit statsChanged();
 }
 
