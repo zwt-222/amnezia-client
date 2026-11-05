@@ -7209,4 +7209,66 @@ Remove the server from the app to continue.</source>
         <translation>存在活动连接时无法移除服务器</translation>
     </message>
 </context>
+<context>
+    <name>ConnectionStatsUiController</name>
+    <message>
+        <source>%1 s ago</source>
+        <translation>%1 秒前</translation>
+    </message>
+    <message>
+        <source>%1 min %2 s ago</source>
+        <translation>%1 分 %2 秒前</translation>
+    </message>
+    <message>
+        <source>handshake</source>
+        <translation>握手</translation>
+    </message>
+    <message>
+        <source> (connection may be dead)</source>
+        <translation>（可能已断）</translation>
+    </message>
+</context>
+<context>
+    <name>ConnectionStatsDrawer</name>
+    <message>
+        <source>Connection details</source>
+        <translation>连接详情</translation>
+    </message>
+    <message>
+        <source>Live statistics of the current tunnel</source>
+        <translation>当前隧道的实时统计</translation>
+    </message>
+    <message>
+        <source>Server</source>
+        <translation>服务器</translation>
+    </message>
+    <message>
+        <source>Protocol</source>
+        <translation>协议</translation>
+    </message>
+    <message>
+        <source>Last handshake</source>
+        <translation>最近握手</translation>
+    </message>
+    <message>
+        <source>This session</source>
+        <translation>本次会话</translation>
+    </message>
+    <message>
+        <source>Received %1 · Sent %2</source>
+        <translation>接收 %1 · 发送 %2</translation>
+    </message>
+    <message>
+        <source>Current speed</source>
+        <translation>当前速率</translation>
+    </message>
+    <message>
+        <source>Copy diagnostics</source>
+        <translation>复制诊断信息</translation>
+    </message>
+    <message>
+        <source>Copied</source>
+        <translation>已复制</translation>
+    </message>
+</context>
 </TS>
