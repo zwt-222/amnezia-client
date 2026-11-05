@@ -77,6 +77,11 @@ void VpnProtocol::setBytesChanged(quint64 receivedBytes, quint64 sentBytes)
     m_sentBytes = sentBytes;
 }
 
+void VpnProtocol::setHandshakeTime(qint64 msSinceEpoch)
+{
+    emit handshakeTimeChanged(msSinceEpoch);
+}
+
 void VpnProtocol::setConnectionState(Vpn::ConnectionState state)
 {
     qDebug() << "VpnProtocol::setConnectionState" << textConnectionState(state);

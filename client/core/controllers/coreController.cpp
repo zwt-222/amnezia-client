@@ -168,6 +168,15 @@ void CoreController::initCoreControllers()
     m_exportController = new ExportController(m_serversRepository, m_appSettingsRepository, this);
     m_importCoreController = new ImportController(m_serversRepository, m_appSettingsRepository, this);
     m_connectionController = new ConnectionController(m_serversRepository, m_appSettingsRepository, m_vpnConnection.get(), this);
+    m_connectionStatsController = new ConnectionStatsController(this);
+    if (m_vpnConnection) {
+        connect(m_vpnConnection.get(), &VpnConnection::bytesChanged, m_connectionStatsController,
+                &ConnectionStatsController::onBytesChanged);
+        connect(m_vpnConnection.get(), &VpnConnection::lastHandshakeChanged, m_connectionStatsController,
+                &ConnectionStatsController::onHandshakeTimeChanged);
+        connect(m_vpnConnection.get(), &VpnConnection::connectionStateChanged, m_connectionStatsController,
+                &ConnectionStatsController::onConnectionStateChanged);
+    }
     m_settingsController = new SettingsController(m_serversRepository, m_appSettingsRepository, this);
 }
 
@@ -175,6 +184,9 @@ void CoreController::initControllers()
 {
     m_connectionUiController = new ConnectionUiController(m_connectionController, m_serversController, this);
     setQmlContextProperty("ConnectionController", m_connectionUiController);
+    m_connectionStatsUiController = new ConnectionStatsUiController(m_connectionStatsController, m_serversController,
+                                                                    m_vpnConnection.get(), this);
+    setQmlContextProperty("ConnectionStatsController", m_connectionStatsUiController);
 
     if (m_engine) {
         m_focusController = new FocusController(m_engine, this);

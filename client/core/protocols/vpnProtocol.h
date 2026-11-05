@@ -75,6 +75,7 @@ public:
 signals:
     void bytesChanged(quint64 receivedBytes, quint64 sentBytes);
     void connectionStateChanged(Vpn::ConnectionState state);
+    void handshakeTimeChanged(qint64 msSinceEpoch);
     void timeoutTimerEvent();
     void protocolError(amnezia::ErrorCode e);
     void tunnelAddressesUpdated(const QString& gateway, const QString& localAddress);
@@ -83,6 +84,7 @@ public slots:
     virtual void onTimeout(); // todo: remove?
 
     void setBytesChanged(quint64 receivedBytes, quint64 sentBytes);
+    void setHandshakeTime(qint64 msSinceEpoch);
     void setConnectionState(Vpn::ConnectionState state);
 
 protected:

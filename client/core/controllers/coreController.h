@@ -14,6 +14,7 @@
 #include "ui/controllers/appSplitTunnelingUiController.h"
 #include "ui/controllers/allowedDnsUiController.h"
 #include "ui/controllers/connectionUiController.h"
+#include "ui/controllers/connectionStatsUiController.h"
 #include "ui/controllers/selfhosted/exportUiController.h"
 #include "core/controllers/selfhosted/exportController.h"
 #include "ui/controllers/qml/focusController.h"
@@ -42,6 +43,7 @@
 #include "core/controllers/selfhosted/installController.h"
 #include "core/controllers/settingsController.h"
 #include "core/controllers/connectionController.h"
+#include "core/controllers/connectionStatsController.h"
 #include "core/controllers/updateController.h"
 
 #include "core/repositories/secureServersRepository.h"
@@ -163,6 +165,7 @@ private:
     QMetaObject::Connection m_reloadConfigErrorOccurredConnection;
 
     ConnectionUiController* m_connectionUiController;
+    ConnectionStatsUiController* m_connectionStatsUiController;
     FocusController* m_focusController;
     PageController* m_pageController;
     InstallUiController* m_installUiController;
@@ -197,6 +200,7 @@ private:
     InstallController* m_installController;
     ExportController* m_exportController;
     ConnectionController* m_connectionController;
+    ConnectionStatsController* m_connectionStatsController;
     SettingsController* m_settingsController;
 
     ContainersModel* m_containersModel;

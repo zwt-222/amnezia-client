@@ -60,6 +60,7 @@ public slots:
 
 signals:
     void bytesChanged(quint64 receivedBytes, quint64 sentBytes);
+    void lastHandshakeChanged(qint64 msSinceEpoch);
     void connectionStateChanged(Vpn::ConnectionState state);
     void vpnProtocolError(amnezia::ErrorCode error);
 
