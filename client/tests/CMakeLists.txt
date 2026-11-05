@@ -131,6 +131,15 @@ if(NOT ANDROID)
         test_common
     )
 
+    add_executable(test_connection_stats
+        testConnectionStats.cpp
+    )
+
+    target_link_libraries(test_connection_stats PRIVATE
+        Qt6::Test
+        test_common
+    )
+
     add_executable(test_xray_serialization
         testXraySerialization.cpp
     )
@@ -394,6 +403,7 @@ enable_testing()
 
 if(NOT ANDROID)
     add_test(NAME MultipleImportsTest              COMMAND test_multiple_imports)
+    add_test(NAME ConnectionStatsTest              COMMAND test_connection_stats)
     add_test(NAME ServerEditTest                   COMMAND test_server_edit)
     add_test(NAME DefaultServerChangeTest          COMMAND test_default_server_change)
     add_test(NAME ServerEdgeCasesTest              COMMAND test_server_edge_cases)

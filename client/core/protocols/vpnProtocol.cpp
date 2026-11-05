@@ -66,8 +66,10 @@ Vpn::ConnectionState VpnProtocol::connectionState() const
 
 void VpnProtocol::setBytesChanged(quint64 receivedBytes, quint64 sentBytes)
 {
-    quint64 rxDiff = receivedBytes - m_receivedBytes;
-    quint64 txDiff = sentBytes - m_sentBytes;
+    // Counters restart from zero when the tunnel is re-created on reconnect;
+    // treat a smaller total as a fresh session instead of underflowing.
+    quint64 rxDiff = receivedBytes >= m_receivedBytes ? receivedBytes - m_receivedBytes : receivedBytes;
+    quint64 txDiff = sentBytes >= m_sentBytes ? sentBytes - m_sentBytes : sentBytes;
 
     emit bytesChanged(rxDiff, txDiff);
 
