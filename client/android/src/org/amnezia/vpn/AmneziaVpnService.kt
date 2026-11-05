@@ -419,7 +419,7 @@ open class AmneziaVpnService : VpnService() {
                 while (true) {
                     clientMessengers.send {
                         ServiceEvent.STATISTICS_UPDATE.packToMessage {
-                            putStatistics(protocol?.statistics ?: Statistics.EMPTY_STATISTICS)
+                            putStatistics(vpnProto?.protocol?.statistics ?: Statistics.EMPTY_STATISTICS)
                         }
                     }
                     delay(STATISTICS_SENDING_TIMEOUT)

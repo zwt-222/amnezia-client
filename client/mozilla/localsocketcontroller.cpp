@@ -329,8 +329,6 @@ void LocalSocketController::cleanupBackendLogs() {
 }
 
 void LocalSocketController::readData() {
-  logger.debug() << "Reading";
-
   Q_ASSERT(m_socket);
   Q_ASSERT(m_daemonState == eInitializing || m_daemonState == eReady);
   QByteArray input = m_socket->readAll();
@@ -371,7 +369,9 @@ void LocalSocketController::parseCommand(const QByteArray& command) {
   }
   QString type = typeValue.toString();
 
-  logger.debug() << "Parse command:" << type;
+  if (type != "status") {
+    logger.debug() << "Parse command:" << type;
+  }
 
   if (m_daemonState == eInitializing && type == "status") {
     m_daemonState = eReady;
@@ -407,6 +407,9 @@ void LocalSocketController::parseCommand(const QByteArray& command) {
   }
 
   if (type == "status") {
+    if (!obj.value("connected").toBool(true)) {
+      return;
+    }
 
     QJsonValue serverIpv4Gateway = obj.value("serverIpv4Gateway");
     if (!serverIpv4Gateway.isString()) {

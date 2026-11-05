@@ -46,8 +46,6 @@ DaemonLocalServerConnection::~DaemonLocalServerConnection() {
 }
 
 void DaemonLocalServerConnection::readData() {
-  logger.debug() << "Read Data";
-
   Q_ASSERT(m_socket);
 
   while (true) {
@@ -90,7 +88,9 @@ void DaemonLocalServerConnection::parseCommand(const QByteArray& data) {
   }
   QString type = typeValue.toString();
 
-  logger.debug() << "Command received:" << type;
+  if (type != "status") {
+    logger.debug() << "Command received:" << type;
+  }
 
   // It is expected that sometimes the client will request backend logs
   // before the first authentication. In these cases we just return empty

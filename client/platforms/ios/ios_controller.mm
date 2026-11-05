@@ -381,7 +381,8 @@ void IosController::checkStatus()
             emit handshakeTimeChanged(last_handshake_time_sec > 0
                                               ? static_cast<qint64>(last_handshake_time_sec) * 1000
                                               : 0);
-            emit bytesChanged(rxBytes - m_rxBytes, txBytes - m_txBytes);
+            emit bytesChanged(rxBytes >= m_rxBytes ? rxBytes - m_rxBytes : rxBytes,
+                              txBytes >= m_txBytes ? txBytes - m_txBytes : txBytes);
             m_rxBytes = rxBytes;
             m_txBytes = txBytes;
             m_statusRequestInFlight = false;
