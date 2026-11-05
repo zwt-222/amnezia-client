@@ -165,6 +165,47 @@ PageType {
             }
 
             BasicButtonType {
+                id: connectionStatsButton
+                objectName: "connectionStatsButton"
+
+                Layout.alignment: Qt.AlignHCenter
+                leftPadding: 16
+                rightPadding: 16
+
+                implicitHeight: 36
+
+                defaultColor: AmneziaStyle.color.transparent
+                hoveredColor: AmneziaStyle.color.translucentWhite
+                pressedColor: AmneziaStyle.color.sheerWhite
+                disabledColor: AmneziaStyle.color.mutedGray
+                textColor: ConnectionStatsController.isHandshakeStale ? AmneziaStyle.color.goldenApricot
+                                                                      : AmneziaStyle.color.mutedGray
+                borderWidth: 0
+
+                buttonTextLabel.lineHeight: 20
+                buttonTextLabel.font.pixelSize: 14
+                buttonTextLabel.font.weight: 500
+
+                visible: ConnectionController.isConnected
+                text: ConnectionStatsController.summaryText
+                rightImageSource: "qrc:/images/controls/chevron-down.svg"
+
+                Keys.onEnterPressed: this.clicked()
+                Keys.onReturnPressed: this.clicked()
+
+                onClicked: {
+                    connectionStatsDrawer.openTriggered()
+                }
+
+                ConnectionStatsDrawer {
+                    id: connectionStatsDrawer
+                    objectName: "connectionStatsDrawer"
+
+                    parent: root
+                }
+            }
+
+            BasicButtonType {
                 id: splitTunnelingButton
                 objectName: "splitTunnelingButton"
 
