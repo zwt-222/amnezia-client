@@ -18,6 +18,10 @@ if(NOT CLIENT_MACOS_APP_ICNS_PATH)
     set(CLIENT_MACOS_APP_ICNS_PATH "${_CLIENT_SRC_DIR}/images/app.icns" CACHE FILEPATH "macOS app icon (.icns) used by non-App Store builds")
 endif()
 
+if(NOT CLIENT_MACOS_APP_BUNDLE_IDENTIFIER)
+    set(CLIENT_MACOS_APP_BUNDLE_IDENTIFIER "" CACHE STRING "macOS desktop app bundle identifier (empty = com.yourcompany.<target>, the value existing installs already have)")
+endif()
+
 if(NOT CLIENT_MACOS_EXTRA_PLIST_ENTRIES)
     set(CLIENT_MACOS_EXTRA_PLIST_ENTRIES "" CACHE STRING "Extra macOS Info.plist entries appended verbatim (e.g. appearance pinning)")
 endif()

@@ -18,8 +18,18 @@ set(LIBS ${LIBS}
     ${FW_NETWORK_EXTENSION}
 )
 
-set_target_properties(${PROJECT} PROPERTIES 
+# Pin the bundle id: otherwise Qt derives it from the build machine's Xcode
+# bundleIdentifierPrefix, and a pkg whose id differs from the installed app
+# gets diverted by the installer instead of replacing it.
+if(CLIENT_MACOS_APP_BUNDLE_IDENTIFIER)
+    set(_macos_bundle_id "${CLIENT_MACOS_APP_BUNDLE_IDENTIFIER}")
+else()
+    set(_macos_bundle_id "com.yourcompany.${PROJECT}")
+endif()
+
+set_target_properties(${PROJECT} PROPERTIES
     MACOSX_BUNDLE TRUE
+    MACOSX_BUNDLE_GUI_IDENTIFIER "${_macos_bundle_id}"
     MACOSX_BUNDLE_SHORT_VERSION_STRING "${CMAKE_PROJECT_VERSION_MAJOR}.${CMAKE_PROJECT_VERSION_MINOR}.${CMAKE_PROJECT_VERSION_PATCH}"
     MACOSX_BUNDLE_BUNDLE_VERSION "${CMAKE_PROJECT_VERSION_TWEAK}"
 )
