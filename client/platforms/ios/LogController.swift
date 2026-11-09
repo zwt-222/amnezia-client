@@ -1,4 +1,5 @@
 import Foundation
+import CxxStdlib
 
 public func swiftUpdateLogData(_ qtString: std.string) -> std.string {
   let qtLog = Log(String(describing: qtString))
